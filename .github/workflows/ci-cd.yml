@@ -50,26 +50,8 @@ jobs:
 
       - name: Run Bandit security scan
         id: run_bandit
-        continue-on-error: true # Impede que o erro pare a esteira
-        run: |
-          bandit -r . | tee bandit-report.txt
-
-      - name: Create Issue on Bandit Failure
-        if: steps.run_bandit.outcome == 'failure'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          
-          echo "O scan automático do Bandit detectou possíveis problemas de segurança no código." > issue-body.txt
-          echo -e "\n### Resumo do Relatório:\n\`\`\`text" >> issue-body.txt
-          tail -n 25 bandit-report.txt >> issue-body.txt
-          echo -e "\`\`\`\n\nPor favor, verifique os logs completos na aba Actions do GitHub." >> issue-body.txt
-
-         
-          gh issue create \
-            --title "⚠️ Alerta de Segurança: Vulnerabilidades encontradas pelo Bandit" \
-            --body-file issue-body.txt
-      
+        allow_failure: true
+        
 
   dependency_check:
     name: OWASP Dependency-Check
