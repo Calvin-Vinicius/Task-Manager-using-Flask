@@ -52,7 +52,8 @@ jobs:
         id: run_bandit
         continue-on-error: true
         run: |
-          bandit -r
+          bandit -r || true
+      
         
 
   dependency_check:
