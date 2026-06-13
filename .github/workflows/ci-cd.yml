@@ -49,7 +49,8 @@ jobs:
           pip install bandit
 
       - name: Run Bandit security scan
-        run: bandit -r , -ll.
+        run: bandit -r , -l
+      
 
   dependency_check:
     name: OWASP Dependency-Check
