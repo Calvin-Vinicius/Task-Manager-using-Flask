@@ -110,7 +110,7 @@ jobs:
           mkdir -p ${{ github.workspace }}/zap-reports
           chmod 777 ${{ github.workspace }}/zap-reports
           
-          # 4. Executa o ZAP apontando para a imagem correta do GitHub Container Registry (ghcr.io)
+          
           docker run --user root --network zap-network \
             -v ${{ github.workspace }}/zap-reports:/zap/wrk/:rw \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
