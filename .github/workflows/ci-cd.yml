@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Tests and SonarQube Scan
+    name: Pytest Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -76,3 +76,43 @@ jobs:
         with:
           name: dependency-check-report
           path: ${{github.workspace}}/reports
+
+
+dast_zap:
+    name: OWASP ZAP DAST Scan
+    runs-on: ubuntu-latest
+    needs: dependency_check
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Docker Network
+        run: docker network create zap-network
+
+      - name: Build Application Docker Image
+        run: |
+          
+          if [ ! -f Dockerfile ]; then
+            echo -e "FROM python:3.12-slim\nWORKDIR /app\nCOPY . .\nRUN pip install -r requirements.txt\nEXPOSE 8080\nCMD [\"python\", \"-m\", \"http.server\", \"8080\"]" > Dockerfile
+          fi
+          docker build -t my-python-app .
+
+      - name: Run Application Container
+        run: |
+          docker run -d --name web-app --network zap-network -p 8080:8080 my-python-app
+        
+          sleep 5
+
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          
+          docker run --user root --network zap-network -v ${{ github.workspace }}:/zap/wrk/:rw -t zaproxy/zaproxy:stable zap-baseline.py \
+            -t http://web-app:8080 \
+            -r zap_report.html
+
+      - name: Upload ZAP DAST Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-dast-report
+          path: ${{ github.workspace }}/zap_report.html
