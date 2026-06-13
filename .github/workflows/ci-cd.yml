@@ -50,7 +50,9 @@ jobs:
 
       - name: Run Bandit security scan
         id: run_bandit
-        allow_failure: true
+        continue-on-error: true
+        run: |
+          bandit -r
         
 
   dependency_check:
